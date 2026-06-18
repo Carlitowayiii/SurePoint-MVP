@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SafetyOS – Full Suite MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="logo">✓</div>
+    <div class="brandText">
+      <div class="brandTitle">SafetyOS</div>
+      <div class="brandSub">Dashboard • Reports • SRM • Investigation • Intent • CAPA • Compliance • OSHA • Inspections • Heatmaps • Trends</div>
+    </div>
+  </div>
+
+  <div class="topRight">
+    <div class="userBox">
+      <div class="userMini">
+        <div class="muted">User</div>
+        <div id="activeUserName" class="userName">—</div>
+      </div>
+      <button class="btn ghost" id="btnLogin" type="button">Switch User</button>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <button class="btn ghost" id="btnExportJson" type="button">Export JSON</button>
+    <button class="btn ghost" id="btnExportCsv" type="button">Export CSV</button>
+    <button class="btn danger" id="btnReset" type="button">Reset</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <section class="panel">
+    <div class="tabs">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="reports">Report Intake</button>
+      <button class="tab" data-view="triage">Triage</button>
+      <button class="tab" data-view="investigate">Investigation</button>
+      <button class="tab" data-view="intent">Intent</button>
+      <button class="tab" data-view="actions">Actions (CAPA)</button>
+      <button class="tab" data-view="risk">Risk Assessment (SRM)</button>
+      <button class="tab" data-view="compliance">Compliance & Policies</button>
+      <button class="tab" data-view="osha">EHS / OSHA</button>
+      <button class="tab" data-view="heatmap">Heat Maps</button>
+      <button class="tab" data-view="trends">Trends (AI)</button>
+    </div>
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <div class="card">
+        <div class="row row3">
+          <div>
+            <label>Search</label>
+            <input id="search" placeholder="Search title, category, site, text…" />
+          </div>
+          <div>
+            <label>Stage</label>
+            <select id="filterStage">
+              <option value="ALL" selected>All</option>
+              <option value="SUBMITTED">Submitted</option>
+              <option value="TRIAGE">Triage</option>
+              <option value="INVESTIGATION">Investigation</option>
+              <option value="INTENT">Intent</option>
+              <option value="ACTIONS">Actions</option>
+              <option value="CLOSED">Closed</option>
+            </select>
+          </div>
+          <div>
+            <label>Owner (Actions)</label>
+            <select id="filterOwner">
+              <option value="ALL" selected>All</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+      </div>
+
+      <div class="card">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Case List</div>
+            <div class="muted">Select a case to work it through modules.</div>
+          </div>
+          <button class="btn primary" id="btnNewCase" type="button">+ New Case</button>
+        </div>
+        <div id="caseList" class="list"></div>
+      </div>
+
+      <div class="card" id="trendsPanel" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">AI Trend Report Output</div>
+            <div class="muted">Generated from pooled cases.</div>
+          </div>
+          <button class="btn" id="btnGenerateTrends" type="button">Generate</button>
+        </div>
+
+        <textarea id="trendOut" class="mono" rows="16" placeholder="AI output appears here..."></textarea>
+
+        <div class="row" style="margin-top:10px">
+          <button class="btn" id="btnCopyTrend" type="button">Copy</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+
+      <!-- Case workspace -->
+      <div class="card">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Case Workspace</div>
+            <div class="muted" id="caseHint">Create or select a case to begin.</div>
+          </div>
+          <div class="pill" id="stagePill">No case</div>
+        </div>
+        <div id="caseSummary"></div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="card view" id="view-dashboard">
+        <div class="cardHead">
+          <div>
+            <div class="h2">User Dashboard</div>
+            <div class="muted">Your workload, risk picture, and quick actions.</div>
+          </div>
+          <div class="pill" id="dashPill">—</div>
+        </div>
+
+        <div class="dashGrid">
+          <div class="cardMini">
+            <div class="h3">My Actions</div>
+            <div class="muted">Assigned to you and not verified.</div>
+            <div id="dashMyActions" class="list" style="margin-top:10px"></div>
+          </div>
+
+          <div class="cardMini">
+            <div class="h3">My Cases</div>
+            <div class="muted">Cases where you’re investigator/owner.</div>
+            <div id="dashMyCases" class="list" style="margin-top:10px"></div>
+          </div>
+
+          <div class="cardMini">
+            <div class="h3">Quick Report</div>
+            <div class="muted">Capture fast, triage later.</div>
+
+            <label>Title</label>
+            <input id="dashTitle" placeholder="e.g., Near-miss on ramp" />
+
+            <label>Category</label>
+            <select id="dashCategory">
+              <option>Runway Safety</option>
+              <option>ATC / Communications</option>
+              <option>Human Factors / Fatigue</option>
+              <option>Maintenance</option>
+              <option>Ramp / Ground Ops / Fleet</option>
+              <option>UAS Operations</option>
+              <option>Security</option>
+              <option>Weather</option>
+              <option>Other</option>
+            </select>
+
+            <label>Description</label>
+            <textarea id="dashDesc" rows="4" placeholder="What happened?"></textarea>
+
+            <div class="row">
+              <button class="btn primary" id="btnDashSubmit" type="button">Submit Report</button>
+              <button class="btn" id="btnDashGoTrends" type="button">Go to Trends</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORT INTAKE -->
+      <div class="card view" id="view-reports" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Report Intake</div>
+            <div class="muted">Capture initial report details.</div>
+          </div>
+          <div class="pill" id="riskPill">Initial Risk: —</div>
+        </div>
+
+        <form id="formIntake" class="form">
+          <div class="row row3">
+            <div>
+              <label>Organization Type</label>
+              <select id="orgType">
+                <option>Airport Operator</option>
+                <option>Fixed-Wing Operator</option>
+                <option>Rotorcraft Operator</option>
+                <option>UAS Operator</option>
+                <option>Manufacturing</option>
+                <option>Vehicle Fleet</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label>Category</label>
+              <select id="category">
+                <option>Runway Safety</option>
+                <option>ATC / Communications</option>
+                <option>Human Factors / Fatigue</option>
+                <option>Maintenance</option>
+                <option>Ramp / Ground Ops / Fleet</option>
+                <option>UAS Operations</option>
+                <option>Security</option>
+                <option>Weather</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label>Site / Location</label>
+              <input id="site" placeholder="KSFB Ramp / Plant A / Yard 3" />
+            </div>
+          </div>
+
+          <div class="row row2">
+            <div>
+              <label>Event Date/Time</label>
+              <input id="eventDate" type="datetime-local" />
+            </div>
+            <div>
+              <label>Reporter</label>
+              <input id="reporter" placeholder="Name or role (optional)" />
+            </div>
+          </div>
+
+          <label>Title</label>
+          <input id="title" placeholder="Short title" />
+
+          <label>Description</label>
+          <textarea id="description" rows="4" placeholder="What happened? What was the outcome?"></textarea>
+
+          <div class="row row2">
+            <div>
+              <label>Initial Severity (1–5)</label>
+              <select id="sev0">
+                <option value="1">1 - Negligible</option>
+                <option value="2">2 - Minor</option>
+                <option value="3" selected>3 - Moderate</option>
+                <option value="4">4 - Major</option>
+                <option value="5">5 - Catastrophic</option>
+              </select>
+            </div>
+            <div>
+              <label>Initial Likelihood (1–5)</label>
+              <select id="lik0">
+                <option value="1">1 - Rare</option>
+                <option value="2">2 - Unlikely</option>
+                <option value="3" selected>3 - Possible</option>
+                <option value="4">4 - Likely</option>
+                <option value="5">5 - Frequent</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Save Intake</button>
+            <button class="btn" id="btnAdvanceFromIntake" type="button">Advance → Triage</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- TRIAGE -->
+      <div class="card view" id="view-triage" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Triage & Risk Classification</div>
+            <div class="muted">Confirm risk, immediate controls, and investigation requirement.</div>
+          </div>
+          <div class="pill" id="triageRiskPill">Risk: —</div>
+        </div>
+
+        <form id="formTriage" class="form">
+          <div class="row row2">
+            <div>
+              <label>Severity (S 1–5)</label>
+              <select id="sev">
+                <option value="1">1 - Negligible</option>
+                <option value="2">2 - Minor</option>
+                <option value="3" selected>3 - Moderate</option>
+                <option value="4">4 - Major</option>
+                <option value="5">5 - Catastrophic</option>
+              </select>
+            </div>
+            <div>
+              <label>Likelihood (L 1–5)</label>
+              <select id="lik">
+                <option value="1">1 - Rare</option>
+                <option value="2">2 - Unlikely</option>
+                <option value="3" selected>3 - Possible</option>
+                <option value="4">4 - Likely</option>
+                <option value="5">5 - Frequent</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Triage Notes</label>
+          <textarea id="triageNotes" rows="4" placeholder="Immediate controls, notifications, whether to investigate…"></textarea>
+
+          <div class="row row3">
+            <div>
+              <label>Investigation Required?</label>
+              <select id="invRequired">
+                <option value="YES" selected>Yes</option>
+                <option value="NO">No</option>
+              </select>
+            </div>
+            <div>
+              <label>Notify Leadership?</label>
+              <select id="notifyLead">
+                <option value="NO" selected>No</option>
+                <option value="YES">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label>Assign Investigator</label>
+              <select id="triageInvestigator"></select>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Save Triage</button>
+            <button class="btn" id="btnAdvanceFromTriage" type="button">Advance → Investigation</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- INVESTIGATION -->
+      <div class="card view" id="view-investigate" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Investigation</div>
+            <div class="muted">Facts, evidence, contributing factors, findings.</div>
+          </div>
+        </div>
+
+        <form id="formInvestigation" class="form">
+          <div class="row row2">
+            <div>
+              <label>Investigator</label>
+              <select id="investigator"></select>
+            </div>
+            <div>
+              <label>Evidence Links (comma separated)</label>
+              <input id="evidence" placeholder="ATC audio URL, photo ref, FDM ref…" />
+            </div>
+          </div>
+
+          <label>Timeline (bullets)</label>
+          <textarea id="timeline" rows="4" placeholder="• 07:30 takeoff…&#10;• Lost comms…&#10;• Returned…"></textarea>
+
+          <label>Contributing Factors (select)</label>
+          <div class="chips" id="factorChips"></div>
+
+          <label>Findings / Root Cause</label>
+          <textarea id="findings" rows="4" placeholder="What drove this? System issues?"></textarea>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Save Investigation</button>
+            <button class="btn" id="btnAdvanceFromInvestigation" type="button">Advance → Intent</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- INTENT -->
+      <div class="card view" id="view-intent" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Intent Decision Tree (Just Culture)</div>
+            <div class="muted">Determine behavior classification + response path.</div>
+          </div>
+          <div class="pill" id="intentOutcomePill">Outcome: —</div>
+        </div>
+
+        <form id="formIntent" class="form">
+          <div class="row row2">
+            <div class="qbox">
+              <div class="qtitle">Q1: Was the action intentional?</div>
+              <label class="radio"><input type="radio" name="q1" value="NO" checked> No</label>
+              <label class="radio"><input type="radio" name="q1" value="YES"> Yes</label>
+            </div>
+            <div class="qbox">
+              <div class="qtitle">Q2: Did they knowingly violate a rule/expectation?</div>
+              <label class="radio"><input type="radio" name="q2" value="NO" checked> No / Unclear</label>
+              <label class="radio"><input type="radio" name="q2" value="YES"> Yes</label>
+            </div>
+          </div>
+
+          <div class="row row2">
+            <div class="qbox">
+              <div class="qtitle">Q3: Did they recognize the substantial risk?</div>
+              <label class="radio"><input type="radio" name="q3" value="NO" checked> No</label>
+              <label class="radio"><input type="radio" name="q3" value="YES"> Yes</label>
+            </div>
+            <div class="qbox">
+              <div class="qtitle">Q4: Would a reasonable person see it as reckless?</div>
+              <label class="radio"><input type="radio" name="q4" value="NO" checked> No</label>
+              <label class="radio"><input type="radio" name="q4" value="YES"> Yes</label>
+            </div>
+          </div>
+
+          <div class="row row2">
+            <div class="qbox">
+              <div class="qtitle">Q5: Evidence of malicious intent / sabotage?</div>
+              <label class="radio"><input type="radio" name="q5" value="NO" checked> No</label>
+              <label class="radio"><input type="radio" name="q5" value="YES"> Yes</label>
+            </div>
+            <div>
+              <label>Intent Notes</label>
+              <textarea id="intentNotes" rows="5" placeholder="Explain the decision and approvals required."></textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Save Intent Outcome</button>
+            <button class="btn" id="btnAdvanceFromIntent" type="button">Advance → Actions</button>
+          </div>
+
+          <div class="cardMini">
+            <div class="h3">Recommendations (based on outcome)</div>
+            <pre id="intentRecs" class="mono muted"></pre>
+          </div>
+        </form>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="card view" id="view-actions" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Actions / Remediation (CAPA)</div>
+            <div class="muted">Assign actions, due dates, verification, and close loop.</div>
+          </div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Add Action</div>
+
+          <div class="row row3">
+            <div>
+              <label>Type</label>
+              <select id="actType">
+                <option>Procedure</option>
+                <option>Training</option>
+                <option>Engineering</option>
+                <option>Supervision</option>
+                <option>Policy</option>
+                <option>Technology</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label>Owner</label>
+              <select id="actOwner"></select>
+            </div>
+            <div>
+              <label>Due</label>
+              <input id="actDue" type="date" />
+            </div>
+          </div>
+
+          <label>Description</label>
+          <textarea id="actDesc" rows="3" placeholder="What will change?"></textarea>
+
+          <div class="row row2">
+            <div>
+              <label>Status</label>
+              <select id="actStatus">
+                <option selected>Open</option>
+                <option>In Progress</option>
+                <option>Done</option>
+                <option>Verified</option>
+              </select>
+            </div>
+            <div>
+              <label>Verification Evidence</label>
+              <input id="actVerify" placeholder="Doc link / photo / audit ref" />
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" id="btnAddAction" type="button">Add Action</button>
+            <button class="btn" id="btnGoSRM" type="button">Go to SRM</button>
+          </div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Action List</div>
+          <div id="actionList" class="list"></div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Close Case</div>
+          <div class="row row2">
+            <div>
+              <label>Residual Severity</label>
+              <select id="sevR"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </div>
+            <div>
+              <label>Residual Likelihood</label>
+              <select id="likR"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </div>
+          </div>
+
+          <label>Closure Notes</label>
+          <textarea id="closeNotes" rows="4" placeholder="Lessons learned, verification summary…"></textarea>
+
+          <div class="row">
+            <button class="btn" id="btnCloseCase" type="button">Close Case</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SRM -->
+      <div class="card view" id="view-risk" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Risk Assessment (SRM)</div>
+            <div class="muted">Hazard → controls → mitigations → residual risk → acceptability.</div>
+          </div>
+          <div class="pill" id="srmPill">SRM: —</div>
+        </div>
+
+        <form id="formSRM" class="form">
+          <label>Hazard Statement</label>
+          <textarea id="hazard" rows="3" placeholder="Hazard: ..."></textarea>
+
+          <label>Existing Controls</label>
+          <textarea id="controls" rows="3" placeholder="Controls in place today..."></textarea>
+
+          <div class="row row2">
+            <div>
+              <label>Initial Severity</label>
+              <select id="srmSev"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </div>
+            <div>
+              <label>Initial Likelihood</label>
+              <select id="srmLik"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </div>
+          </div>
+
+          <label>Proposed Mitigations</label>
+          <textarea id="mitigations" rows="3" placeholder="What will reduce risk?"></textarea>
+
+          <div class="row row2">
+            <div>
+              <label>Residual Severity</label>
+              <select id="srmSevR"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </div>
+            <div>
+              <label>Residual Likelihood</label>
+              <select id="srmLikR"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </div>
+          </div>
+
+          <label>Acceptance Decision</label>
+          <select id="srmAccept">
+            <option value="ACCEPTABLE" selected>Acceptable</option>
+            <option value="ACCEPT_WITH_CONTROLS">Acceptable with controls</option>
+            <option value="UNACCEPTABLE">Unacceptable (must mitigate)</option>
+          </select>
+
+          <label>Approval / Notes</label>
+          <textarea id="srmNotes" rows="3" placeholder="Who approves? What conditions?"></textarea>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Save SRM</button>
+            <button class="btn" id="btnSRMToActions" type="button">Back to Actions</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- COMPLIANCE -->
+      <div class="card view" id="view-compliance" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Compliance & Policies</div>
+            <div class="muted">Policy library + compliance checklist + audit notes per case.</div>
+          </div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Policy Library</div>
+          <div class="muted">Edit text and save. (Offline library)</div>
+
+          <label>Select Policy</label>
+          <select id="policySelect"></select>
+
+          <label>Policy Text</label>
+          <textarea id="policyText" rows="8"></textarea>
+
+          <div class="row">
+            <button class="btn primary" id="btnSavePolicy" type="button">Save Policy</button>
+          </div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Compliance Checklist (Case)</div>
+          <div class="muted">Mark items relevant to this case (e.g., Part 135/141/OSHA/EHS/internal).</div>
+          <div id="complianceChecklist" class="checklist"></div>
+
+          <label>Compliance Notes</label>
+          <textarea id="complianceNotes" rows="4" placeholder="References, regulation notes, deviations, reporting decisions..."></textarea>
+
+          <div class="row">
+            <button class="btn primary" id="btnSaveCompliance" type="button">Save Compliance</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EHS / OSHA (NEW INSPECTIONS + AUTO OSHA 300 TABLE) -->
+      <div class="card view" id="view-osha" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">EHS / OSHA</div>
+            <div class="muted">Recordkeeping + Inspections + Compliance follow-ups.</div>
+          </div>
+        </div>
+
+        <!-- OSHA Recordkeeping (Case) -->
+        <div class="cardMini">
+          <div class="h3">OSHA Recordkeeping (Case)</div>
+          <div class="muted">These fields power the OSHA 300 Log auto-fill.</div>
+
+          <div class="row row3">
+            <div>
+              <label>Injury/Illness?</label>
+              <select id="oshaInjury">
+                <option value="NO" selected>No</option>
+                <option value="YES">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label>Recordable?</label>
+              <select id="oshaRecordable">
+                <option value="NO" selected>No</option>
+                <option value="YES">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label>Classification</label>
+              <select id="oshaClass">
+                <option value="OTHER" selected>Other Recordable</option>
+                <option value="DAYS_AWAY">Days Away From Work</option>
+                <option value="TRANSFER_RESTRICTION">Job Transfer / Restriction</option>
+                <option value="DEATH">Death</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row row3">
+            <div>
+              <label>Employee Name (optional)</label>
+              <input id="oshaEmp" placeholder="John Doe" />
+            </div>
+            <div>
+              <label>Job Title (optional)</label>
+              <input id="oshaJob" placeholder="Line Tech / Ramp Agent / Mechanic" />
+            </div>
+            <div>
+              <label>Department (optional)</label>
+              <input id="oshaDept" placeholder="Maintenance / Ramp / Ops / Manufacturing" />
+            </div>
+          </div>
+
+          <div class="row row3">
+            <div>
+              <label>Days Away</label>
+              <input id="oshaDaysAway" type="number" min="0" placeholder="0" />
+            </div>
+            <div>
+              <label>Days Restricted/Transferred</label>
+              <input id="oshaDaysRestrict" type="number" min="0" placeholder="0" />
+            </div>
+            <div>
+              <label>Body Part</label>
+              <input id="oshaBodyPart" placeholder="Hand, back, etc." />
+            </div>
+          </div>
+
+          <div class="row row2">
+            <div>
+              <label>Nature of Injury/Illness</label>
+              <input id="oshaNature" placeholder="Strain, laceration, chemical exposure..." />
+            </div>
+            <div>
+              <label>Where did the event occur?</label>
+              <input id="oshaWhere" placeholder="Auto-filled from site (edit if needed)" />
+            </div>
+          </div>
+
+          <label>OSHA Notes</label>
+          <textarea id="oshaNotes" rows="4" placeholder="Treatment, provider, restricted duty notes, privacy case notes, etc."></textarea>
+
+          <div class="row">
+            <button class="btn primary" id="btnSaveOSHA" type="button">Save OSHA</button>
+            <button class="btn" id="btnAutoFillOSHA" type="button">Auto-fill from Case</button>
+          </div>
+        </div>
+
+        <!-- OSHA 300 LOG (Auto Table + CSV) -->
+        <div class="cardMini">
+          <div class="cardHead">
+            <div>
+              <div class="h3">OSHA 300 Log (Auto)</div>
+              <div class="muted">Builds from cases marked Recordable = YES.</div>
+            </div>
+            <div class="row" style="margin:0">
+              <button class="btn" id="btnRenderOshaTable" type="button">Refresh Table</button>
+              <button class="btn" id="btnGenOsha300Csv" type="button">Generate CSV</button>
+            </div>
+          </div>
+
+          <div class="tableWrap">
+            <table class="table" id="osha300Table">
+              <thead>
+                <tr>
+                  <th>Case #</th>
+                  <th>Employee</th>
+                  <th>Job Title</th>
+                  <th>Date</th>
+                  <th>Where</th>
+                  <th>Description</th>
+                  <th>Death</th>
+                  <th>Days Away</th>
+                  <th>Transfer/Restrict</th>
+                  <th>Other</th>
+                  <th>Days Away</th>
+                  <th>Days Restr.</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <label>OSHA 300 CSV Output</label>
+          <textarea id="oshaOut" class="mono" rows="8" placeholder="CSV appears here (copy/paste)."></textarea>
+        </div>
+
+        <!-- OSHA Inspections & Compliance -->
+        <div class="cardMini">
+          <div class="cardHead">
+            <div>
+              <div class="h3">OSHA Inspections & Compliance</div>
+              <div class="muted">Track inspections, findings, citations, and follow-ups (case-linked or general).</div>
+            </div>
+          </div>
+
+          <div class="row row3">
+            <div>
+              <label>Inspection Type</label>
+              <select id="inspType">
+                <option selected>Internal Self-Inspection</option>
+                <option>OSHA On-Site Inspection</option>
+                <option>Consultation Visit</option>
+                <option>Insurance / 3rd Party Audit</option>
+                <option>FAA/ICAO Safety Audit (EHS crossover)</option>
+              </select>
+            </div>
+            <div>
+              <label>Inspector / Lead</label>
+              <input id="inspLead" placeholder="Name / role" />
+            </div>
+            <div>
+              <label>Date</label>
+              <input id="inspDate" type="date" />
+            </div>
+          </div>
+
+          <div class="row row2">
+            <div>
+              <label>Area / Location</label>
+              <input id="inspArea" placeholder="Hangar / Ramp / Plant A / Yard 3..." />
+            </div>
+            <div>
+              <label>Link to Case (optional)</label>
+              <input id="inspCaseId" placeholder="Auto: current case id (you can edit)" />
+            </div>
+          </div>
+
+          <label>Checklist Items (comma separated)</label>
+          <input id="inspChecklist" placeholder="PPE, LOTO, Fall protection, HazCom, Fire extinguishers..." />
+
+          <label>Findings / Observations</label>
+          <textarea id="inspFindings" rows="4" placeholder="What was found?"></textarea>
+
+          <div class="row row3">
+            <div>
+              <label>Citation / Standard (optional)</label>
+              <input id="inspCitations" placeholder="29 CFR 1910.xxx, 1926.xxx" />
+            </div>
+            <div>
+              <label>Severity</label>
+              <select id="inspSeverity">
+                <option selected>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </div>
+            <div>
+              <label>Follow-up Due</label>
+              <input id="inspDue" type="date" />
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" id="btnAddInspection" type="button">Add Inspection</button>
+          </div>
+
+          <div class="h3" style="margin-top:12px">Inspection Log</div>
+          <div id="inspectionList" class="list"></div>
+        </div>
+      </div>
+
+      <!-- HEATMAPS -->
+      <div class="card view" id="view-heatmap" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Heat Maps</div>
+            <div class="muted">Risk matrix + hotspots from pooled cases.</div>
+          </div>
+          <button class="btn" id="btnRefreshHeatmaps" type="button">Refresh</button>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Risk Matrix (S×L)</div>
+          <div id="riskMatrix"></div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Hotspots by Site</div>
+          <div id="siteHotspots" class="list"></div>
+        </div>
+
+        <div class="cardMini">
+          <div class="h3">Hotspots by Category</div>
+          <div id="catHotspots" class="list"></div>
+        </div>
+      </div>
+
+      <!-- TRENDS -->
+      <div class="card view" id="view-trends" style="display:none">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Trends Workspace</div>
+            <div class="muted">Generate on the left; copy or export as needed.</div>
+          </div>
+        </div>
+        <div class="muted">
+          This module reads your pooled dataset (cases + actions + risk + factors + OSHA fields) and outputs AI-style trends and recommendations.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal" style="display:none">
+  <div class="modalInner">
+    <div class="modalHead">
+      <div class="h2">Switch User</div>
+      <button class="btn ghost" id="btnCloseLogin" type="button">Close</button>
+    </div>
+
+    <div class="muted">Pick a user (offline). Default PIN for demo is shown in list.</div>
+
+    <div id="userList" class="list" style="margin-top:10px"></div>
+
+    <div class="cardMini" style="margin-top:12px">
+      <div class="h3">Add Demo User</div>
+      <div class="row row2">
+        <div>
+          <label>Name</label>
+          <input id="newUserName" placeholder="e.g., Safety Manager" />
+        </div>
+        <div>
+          <label>PIN (4 digits)</label>
+          <input id="newUserPin" placeholder="e.g., 1111" maxlength="4" />
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btnAddUser" type="button">Add User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+         
+
+Get Outlook for iOS
