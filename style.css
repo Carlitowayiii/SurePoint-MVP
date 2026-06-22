@@ -680,5 +680,42 @@ textarea:focus-visible,
     animation:none !important;
   }
 }
+.risk-low {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #166534;
+}
 
-Get Outlook for iOS
+.risk-medium {
+    background: #fef9c3;
+    border-color: #eab308;
+    color: #854d0e;
+}
+
+.risk-high {
+    background: #ffedd5;
+    border-color: #f97316;
+    color: #9a3412;
+}
+
+.risk-critical {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+}
+
+.risk-legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.risk-legend span {
+    padding: 8px 10px;
+    border: 1px solid;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
