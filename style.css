@@ -140,7 +140,7 @@ textarea{
 @media(min-width:980px){
   .panel{
     display:grid;
-    grid-template-columns:1.05fr .95fr;
+    grid-template-columns:.95fr 1.05fr;
     gap:16px;
     align-items:start;
   }
