@@ -136,11 +136,15 @@ textarea{
 .panel{
   display:block;
 }
-
+.left{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
 @media(min-width:980px){
   .panel{
     display:grid;
-    grid-template-columns:.95fr 1.05fr;
+    grid-template-columns:1.4fr .6fr;
     gap:16px;
     align-items:start;
   }
