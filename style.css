@@ -130,11 +130,11 @@ textarea{
 .main{
   max-width:1320px;
   margin:0 auto;
-  padding:20px;
-}
+  padding:8px 20px 20px;
 
 .panel{
   display:block;
+  margin-top:0;
 }
 .left{
   display:flex;
