@@ -345,7 +345,7 @@
         description: c.intake?.description || "",
         sev0: safeNum(c.intake?.sev0, 3),
         lik0: safeNum(c.intake?.lik0, 3),
-        riskLabel: c.intake?.riskLabel || RISK_LABEL(safeNum(c.intake?.sev0, 3), safeNum(c.intake?.lik0, 3)).label
+        riskLabel: RISK_LABEL(safeNum(c.intake?.sev, 3), safeNum(c.intake?.lik, 3)).label,
       },
       triage: {
         sev: safeNum(c.triage?.sev, 3),
