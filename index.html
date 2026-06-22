@@ -52,7 +52,18 @@
 
     <!-- LEFT -->
     <div class="left">
-<div class="card">
+       <!-- Case workspace -->
+      <div class="card">
+        <div class="cardHead">
+          <div>
+            <div class="h2">Case Workspace</div>
+            <div class="muted" id="caseHint">Create or select a case to begin.</div>
+          </div>
+          <div class="pill" id="stagePill">No case</div>
+        </div>
+        <div id="caseSummary"></div>
+      </div>
+      <div class="card">
   <div class="cardHead">
     <div>
       <div class="h2">SafetyOS Command Center</div>
@@ -90,8 +101,7 @@
       <li>Heat Map updated</li>
     </ul>
   </div>
-</div>
-      <div class="card">
+</div>      <div class="card">
         <div class="row row3">
           <div>
             <label>Search</label>
@@ -152,17 +162,7 @@
     <!-- RIGHT -->
     <div class="right">
 
-      <!-- Case workspace -->
-      <div class="card">
-        <div class="cardHead">
-          <div>
-            <div class="h2">Case Workspace</div>
-            <div class="muted" id="caseHint">Create or select a case to begin.</div>
-          </div>
-          <div class="pill" id="stagePill">No case</div>
-        </div>
-        <div id="caseSummary"></div>
-      </div>
+     
 
       <!-- DASHBOARD -->
       <div class="card view" id="view-dashboard">
