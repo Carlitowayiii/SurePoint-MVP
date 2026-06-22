@@ -1078,7 +1078,14 @@
       html += `<div class="matrixRow">`;
       for (let l = 1; l <= 5; l++) {
         const v = counts[s - 1][l - 1];
-        html += `<div class="matrixCell" title="S${s}×L${l}">${v || ""}</div>`;
+        const score = s * l;
+let riskClass = "risk-low";
+
+if (score >= 17) riskClass = "risk-critical";
+else if (score >= 10) riskClass = "risk-high";
+else if (score >= 5) riskClass = "risk-medium";
+
+html += `<div class="matrixCell ${riskClass}" title="S${s}×L${l} Score: ${score}">${v || ""}</div>`;
       }
       html += `</div>`;
     }
