@@ -314,8 +314,8 @@
   const setPanelVisibility = (el, visible) => {
     if (!el) return;
     if ("hidden" in el) el.hidden = !visible;
-    el.style.display = visible ? "" : "none";
-  };
+    el.style.display = visible ? "grid" : "none";
+
 
   const syncSelectOptions = (selector, optionsHtml, preferredValue = "") => {
     const el = $(selector);
