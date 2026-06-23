@@ -1875,7 +1875,11 @@ Note: This is offline demo "AI-style" output. Replace with a real AI service lat
   };
 
   const wireLogin = () => {
-    $("#btnLogin")?.addEventListener("click", openLogin);
+   $("#btnLogin")?.addEventListener("click", () => {
+  state.activeUserId = state.activeUserId === "U1" ? "U2" : "U1";
+  saveState();
+  renderAll();
+});
     $("#btnCloseLogin")?.addEventListener("click", closeLogin);
 
     $("#btnAddUser")?.addEventListener("click", () => {
