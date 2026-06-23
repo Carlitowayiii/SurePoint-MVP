@@ -155,6 +155,7 @@ textarea{
   flex-wrap:wrap;
   gap:6px;
   margin-bottom:14px;
+  grid-column:1 / -1;
 }
 
 .tab{
