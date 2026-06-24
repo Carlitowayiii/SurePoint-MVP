@@ -761,7 +761,24 @@
         }
       });
     });
+const totalCases = state.cases.length;
 
+const openCases = state.cases.filter(c =>
+  c.stage !== "Closed"
+).length;
+
+const highRiskCases = state.cases.filter(c =>
+  c.risk === "High" || c.risk === "Critical"
+).length;
+
+const safetyScore = totalCases === 0
+  ? 100
+  : Math.round(((totalCases - highRiskCases) / totalCases) * 100);
+
+$("#dashSafetyScore").textContent = safetyScore + "%";
+$("#dashOpenCases").textContent = openCases;
+$("#dashHighRiskCases").textContent = highRiskCases;
+$("#dashOpenActions").textContent = myActions.length;
     const myAEl = $("#dashMyActions");
     if (myAEl) {
       myAEl.innerHTML = myActions.length
