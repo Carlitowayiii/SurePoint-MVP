@@ -779,7 +779,18 @@ $("#dashSafetyScore").textContent = safetyScore + "%";
 $("#dashOpenCases").textContent = openCases;
 $("#dashHighRiskCases").textContent = highRiskCases;
 $("#dashOpenActions").textContent = myActions.length;
-    const myAEl = $("#dashMyActions");
+     const recent = $("#dashRecentActivity");
+
+if (recent) {
+  recent.innerHTML = state.cases.length
+    ? state.cases
+        .slice(-5)
+        .reverse()
+        .map(c => `<li>Case created: ${safeText(c.title || c.name || c.id)}</li>`)
+        .join("")
+    : "<li>No recent activity.</li>";
+}    
+     const myAEl = $("#dashMyActions");
     if (myAEl) {
       myAEl.innerHTML = myActions.length
         ? myActions.map(a => `
