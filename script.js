@@ -1815,12 +1815,16 @@ html += `<div class="matrixCell ${riskClass}" title="S${s}×L${l} Score: ${score
       const closedCases = state.cases.filter(c => c.stage === "CLOSED").length;
       const openActions = state.cases.reduce((sum, c) => sum + (c.actions || []).filter(a => a.status !== "Verified").length, 0);
 
-      const out =
-`SAFETYOS – TREND SUMMARY (Offline MVP)
+  const out =
+`SAFETYOS AI TREND ANALYSIS
+
 Cases analyzed: ${n}
 Closed cases: ${closedCases}
-Open / unverified actions: ${openActions}
+Open or unverified actions: ${openActions}
 High-risk cases: ${highRiskCases}
+
+Executive Summary:
+SafetyOS reviewed the current case data and identified the main areas needing attention. The organization currently has ${openActions} open action(s), ${highRiskCases} high-risk case(s), and ${closedCases} closed case(s). This report is based on entered case data, contributing factors, risk levels, categories, and open corrective actions.
 
 Top Industry / Category Hotspots:
 ${topCategories.length ? topCategories.map(([k, v]) => `- ${k}: ${v}`).join("\n") : "- No category data yet."}
@@ -1828,15 +1832,21 @@ ${topCategories.length ? topCategories.map(([k, v]) => `- ${k}: ${v}`).join("\n"
 Top Contributing Factors:
 ${topFactors.length ? topFactors.map(([k, v]) => `- ${k}: ${v}`).join("\n") : "- No factor tags yet."}
 
-Recommended Actions:
-1) If one industry/category combination repeats, create a targeted mitigation playbook.
-2) If high-risk cases cluster at one site, run SRM and add engineered or procedural controls.
-3) If Human Error or At-Risk outcomes dominate, improve training, supervision, and reporting clarity.
-4) Review overdue CAPA items weekly and escalate stagnant actions.
-5) Tag contributing factors consistently in investigations to improve trend quality.
+AI Observations:
+${highRiskCases > 0 ? "- High-risk cases are present and should be reviewed by leadership." : "- No high-risk cases are currently showing in the system."}
+${openActions > 0 ? "- Open corrective actions remain active and should be tracked until verified closed." : "- No open corrective actions are currently pending."}
+${n > 0 ? "- Case data is available for trend review, but more reports will improve accuracy." : "- No cases are available yet. Submit reports to generate meaningful trends."}
 
-Note: This is offline demo "AI-style" output. Replace with a real AI service later.
-`;
+Recommended Actions:
+1) Review open CAPA items weekly until verified closed.
+2) Monitor repeat categories and repeat sites for emerging patterns.
+3) Use SRM when a case involves medium, high, or critical risk.
+4) Require contributing factor tagging during investigations.
+5) Review the Safety Score during leadership meetings.
+
+Note:
+This is offline AI-style analysis generated from local case data. A real AI service can be connected later.`;
+
       if ($("#trendOut")) $("#trendOut").value = out;
       toast("Trends generated.");
     });
