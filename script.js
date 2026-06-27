@@ -771,9 +771,37 @@ const highRiskCases = state.cases.filter(c =>
   c.risk === "High" || c.risk === "Critical"
 ).length;
 
-const safetyScore = totalCases === 0
-  ? 100
-  : Math.round(((totalCases - highRiskCases) / totalCases) * 100);
+const openActions = state.cases.reduce((sum, c) => {
+  return sum + (c.actions || []).filter(a => a.status !== "Verified").length;
+}, 0);
+
+const today = new Date().toISOString().slice(0, 10);
+
+const overdueActions = state.cases.reduce((sum, c) => {
+  return sum + (c.actions || []).filter(a =>
+    a.status !== "Verified" &&
+    a.due &&
+    a.due < today
+  ).length;
+}, 0);
+
+const mediumRiskCases = state.cases.filter(c =>
+  c.triage?.riskLabel === "Medium" ||
+  c.intake?.riskLabel === "Medium"
+).length;
+
+const safetyScore = Math.max(
+  0,
+  Math.min(
+    100,
+    100 -
+      (openCases * 3) -
+      (openActions * 4) -
+      (mediumRiskCases * 5) -
+      (highRiskCases * 10) -
+      (overdueActions * 8)
+  )
+);
 
 $("#dashSafetyScore").textContent = safetyScore + "%";
 $("#dashOpenCases").textContent = openCases;
